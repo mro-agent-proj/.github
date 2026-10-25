@@ -60,6 +60,34 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 <br>
 
+## 이번 프로젝트의 MVP
+
+핵심 가치 하나를 끝까지 동작하게 만드는 것이 목표였습니다.
+
+| | 항목 | 이 프로젝트에서 |
+|:--:|:--|:--|
+| **1** | **가치를 한 문장으로** | 정비 신고를 **근거와 함께** 담당 정비팀에 바로 배정한다 |
+| **2** | **그 가치가 끝까지 동작** | 신고 접수 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 화면 |
+| **3** | **숫자로 확인** | 서비스 평가 200건 (dev 80 / test 120): 자동배정 정밀도, LLM2 부서 일치율, 시스템 오류 수 |
+| **4** | **모를 때는 멈춤** | 근거가 없거나 검증에 실패하면 자동 배정하지 않고 사람 검토로. 배정 화면에 인용 근거 표시 |
+| **5** | **나머지는 뒤로** | AWS 실배포(Terraform 정의까지), AI 워커 여러 개로 확장, 앱 메트릭 수집, 인원 현황의 배정 반영 |
+
+<br>
+
+## 문제와 AI 적용 지점
+
+| 항목 | 내용 |
+|:--|:--|
+| **비즈니스 문제** | 정비 신고마다 사람이 증상을 읽고 과거 사례를 찾아 담당 부서를 정해야 해서, 분류에 시간이 들고 담당자마다 판단이 달라짐 |
+| **대상 사용자** | 신고자(항공사 정비 요청자), 정비팀(부서 8개), 관리자 |
+| **유저 문제** | 신고자는 누가 언제 처리하는지 모르고, 정비팀은 왜 우리 팀에 왔는지 근거를 다시 찾아야 하며, 관리자는 애매한 건만 골라 보기 어려움 |
+| **AI 적용 지점** | 증상 → ATA 계통 분류(LLM1), 같은 기체 이력·SDR 사례·기술자료 검색(MCP + RAG), 판단 대조(LLM3). 근거가 없으면 사람 검토로 |
+| **핵심 시나리오** | 신고 접수 → 기체·기종 검증 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 → 수락 |
+| **데이터** | FAA 공개 SDR 71,741건, JASC 548개, AMM 참조 35,396건, Airbus Safety First 61편 + 시연용 업무 시드(기체 20, 수리이력 1,600). 계정은 시연용 `.test` 주소뿐이고 실제 개인정보 없음 |
+| **성공 지표** | 서비스 평가 200건의 자동배정 정밀도·오배정률·사람 검토 비율, 시스템 오류·시간 초과 0건 |
+
+<br>
+
 ## 어떻게 동작하나요?
 
 ```mermaid
@@ -242,6 +270,142 @@ AWS 배포 구성은 Terraform으로 정의했습니다. 배포는 [infra](https
 
 <p align="center"><img src="assets/aws-architecture.png" width="860" alt="AWS 아키텍처"></p>
 
+
+<br>
+
+## 구성도
+
+```mermaid
+flowchart LR
+    U(["신고자 · 정비팀 · 관리자"]) --> FE
+
+    subgraph F["Frontend"]
+        FE["dashboard · Vue 3<br/>/reporter /maintenance /admin"]
+    end
+
+    subgraph B["Backend · Spring Boot"]
+        RC["RepairRequestController<br/>POST /api/v1/requests"]
+        IV["IntakeValidator<br/>접수 검증 (422)"]
+        AD["AgentDispatcher<br/>+ McpDelegationService<br/>검색 범위 · 토큰 2개"]
+        EV["AgentEventService<br/>+ EvidenceValidator<br/>근거 재검증"]
+        WF["RequestWorkflow<br/>assign · sendToHumanReview"]
+    end
+
+    subgraph M["Messaging · RabbitMQ"]
+        RQ[["mro.agent.run"]]
+        EQ[["mro.agent.events"]]
+        DLQ[["mro.agent.run.dlq"]]
+    end
+
+    subgraph A["AI Layer · FastAPI + LangGraph"]
+        RW["RabbitWorker<br/>handle_message"]
+        LG["LangGraph 노드 13개<br/>LLM1 · LLM2 · LLM3"]
+    end
+
+    subgraph D["Model & Data"]
+        BM["business-mcp<br/>B01~B03"]
+        RM["rag-mcp<br/>R01~R05"]
+        DB[("PostgreSQL 16<br/>+ pgvector")]
+        OAI["OpenAI<br/>gpt-5.4-mini"]
+    end
+
+    FE -- "HTTP · JSON" --> RC --> IV --> WF
+    WF -. "커밋 후" .-> AD --> RQ --> RW --> LG
+    LG -- "단계·최종 이벤트" --> EQ --> EV --> WF
+    RQ -. "처리 실패" .-> DLQ
+    LG -- "Bearer 토큰" --> BM
+    LG -- "Bearer 토큰" --> RM
+    BM -- "조회 전용 계정" --> DB
+    RM -- "조회 전용 계정" --> DB
+    LG <--> OAI
+    WF --> DB
+```
+
+> **Harness** — MCP 도구 10초·재시도 1회 · 모델 호출 45초 · 단계별 도구 호출 8회 · 재조사 최대 2회 · AI 실행 280초 · 백엔드 처리 한도 5분 · 실행별 MCP 토큰 10분 · LLM 출력 스키마 검증 실패 시 1회 재요청
+
+<br>
+
+## 처리 흐름: 정상
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor 신고자
+    participant FE as dashboard
+    participant BE as backend
+    participant MQ as RabbitMQ
+    participant AI as AI 서버 (LangGraph)
+    participant MCP as business-mcp · rag-mcp
+    actor 정비팀
+
+    신고자->>FE: 기체번호 · 기종 · 증상 입력
+    FE->>BE: POST /api/v1/requests
+    BE->>BE: IntakeValidator.validate → RequestWorkflow.submit (QUEUED)
+    BE->>BE: AgentDispatcher.onRunRequested → McpDelegationService.prepare
+    BE->>MQ: RunRequestPublisher.publish (mro.agent.run + MCP 토큰 2개)
+    MQ->>AI: RabbitWorker → handle_message → MaintenanceService.execute
+    AI->>MCP: classify: B01 get_request_context · B02 get_aircraft_history · B03 search_departments
+    alt 같은 기체 이력으로 근거 확인
+        AI->>AI: direct (바로 배정 제안)
+    else 근거 부족
+        AI->>MCP: investigate: R01 · R02 search_sdr_cases · R04 · R05
+        AI->>AI: merge_for_review → review (LLM3 대조)
+        AI->>MCP: finalize: R05 get_evidence · get_sdr_amm_references
+    end
+    AI->>MQ: STAGE_STARTED · STAGE_RESULT · COMPLETED (mro.agent.events)
+    MQ->>BE: AgentEventListener.onEvent → AgentEventService.handle
+    BE->>BE: EvidenceValidator.findProblems (문제 없음) → RequestWorkflow.assign (ASSIGNED)
+    FE->>BE: GET /api/v1/requests/{id}/trace (3초마다)
+    BE-->>FE: 단계 · 판단 요약 · 인용 근거
+    정비팀->>FE: 배정 확인
+    FE->>BE: POST /api/v1/assignments/{id}/accept (ACCEPTED)
+```
+
+<br>
+
+## 처리 흐름: 실패
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor 신고자
+    participant FE as dashboard
+    participant BE as backend
+    participant MQ as RabbitMQ
+    participant AI as AI 서버 (LangGraph)
+    actor 관리자
+
+    alt 접수 정보가 등록 정보와 다름
+        신고자->>FE: 기체번호 · 기종 · 증상 입력
+        FE->>BE: POST /api/v1/requests
+        BE-->>FE: 422 NEEDS_SUPPLEMENT + 등록된 값 (AI 작업을 만들지 않음)
+        FE-->>신고자: 맞는 값을 한 번에 적용
+    else 근거 부족 · 재조사 한도 초과
+        AI->>AI: review → increment (재조사, 최대 2회) → limit → hold
+        AI->>MQ: COMPLETED (보류)
+        MQ->>BE: AgentEventService.handle
+        BE->>BE: RequestWorkflow.sendToHumanReview (AGENT_NEEDS_HUMAN · RETRY_LIMIT)
+    else 인용 근거 재검증 실패
+        MQ->>BE: COMPLETED (배정 제안)
+        BE->>BE: EvidenceValidator.findProblems (문제 발견)
+        BE->>BE: RequestWorkflow.sendToHumanReview (VALIDATION_FAILED)
+    else AI 실패 · 시간 초과 · 메시지 처리 실패
+        AI->>MQ: FAILED
+        MQ->>BE: AgentEventService.handle → sendToHumanReview (SYSTEM_ERROR)
+        BE->>BE: AgentTimeoutJob.expireStaleRuns (5분 넘김) → SYSTEM_ERROR
+        MQ->>BE: RunDeadLetterListener.onDeadRun (DLQ) → SYSTEM_ERROR
+    end
+    관리자->>FE: 사람 검토 목록에서 판단
+    FE->>BE: POST /api/v1/reviews/{id}/resolve (수동 배정 · 종결)
+```
+
+| 실패 | 어디서 막나 | 결과 |
+|:--|:--|:--|
+| 접수 정보 불일치 · 필수값 누락 · 권한 없음 | `IntakeValidator.validate` | 422, AI 실행 안 함 |
+| 이력·사례로 근거를 찾지 못함 | LangGraph `hold` | 사람 검토 `AGENT_NEEDS_HUMAN` |
+| 재조사 2회로도 충돌이 남음 | LangGraph `limit` → `hold` | 사람 검토 `RETRY_LIMIT` |
+| 인용 근거가 실제 조회 기록과 다름 | `EvidenceValidator.findProblems` | 사람 검토 `VALIDATION_FAILED` |
+| 모델·도구 오류, 5분 초과, 메시지 처리 실패 | `FAILED` 이벤트, `AgentTimeoutJob`, `RunDeadLetterListener` | 사람 검토 `SYSTEM_ERROR` |
 
 <br>
 
