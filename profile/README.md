@@ -17,6 +17,7 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 [![통합 레포](https://img.shields.io/badge/시작하기-integration-181717?style=for-the-badge&logo=github)](https://github.com/mro-agent-proj/integration)
 [![아키텍처](https://img.shields.io/badge/AWS-아키텍처-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)](https://github.com/mro-agent-proj/deliverables/tree/main/architecture)
 [![보고서](https://img.shields.io/badge/최종-결과보고서-4B5563?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/final-report)
+[![설계서](https://img.shields.io/badge/아키텍처-설계서-2563EB?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/design)
 
 <br>
 
@@ -60,20 +61,6 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 <br>
 
-## 이번 프로젝트의 MVP
-
-핵심 가치 하나를 끝까지 동작하게 만드는 것이 목표였습니다.
-
-| | 항목 | 이 프로젝트에서 |
-|:--:|:--|:--|
-| **1** | **가치를 한 문장으로** | 정비 신고를 **근거와 함께** 담당 정비팀에 바로 배정한다 |
-| **2** | **그 가치가 끝까지 동작** | 신고 접수 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 화면 |
-| **3** | **숫자로 확인** | 서비스 평가 200건 (dev 80 / test 120): 자동배정 정밀도, LLM2 부서 일치율, 시스템 오류 수 |
-| **4** | **모를 때는 멈춤** | 근거가 없거나 검증에 실패하면 자동 배정하지 않고 사람 검토로. 배정 화면에 인용 근거 표시 |
-| **5** | **나머지는 뒤로** | AWS 실배포(Terraform 정의까지), AI 워커 여러 개로 확장, 앱 메트릭 수집, 인원 현황의 배정 반영 |
-
-<br>
-
 ## 문제와 AI 적용 지점
 
 | 항목 | 내용 |
@@ -85,6 +72,20 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 | **핵심 시나리오** | 신고 접수 → 기체·기종 검증 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 → 수락 |
 | **데이터** | FAA 공개 SDR 71,741건, JASC 548개, AMM 참조 35,396건, Airbus Safety First 61편 + 시연용 업무 시드(기체 20, 수리이력 1,600). 계정은 시연용 `.test` 주소뿐이고 실제 개인정보 없음 |
 | **성공 지표** | 서비스 평가 200건의 자동배정 정밀도·오배정률·사람 검토 비율, 시스템 오류·시간 초과 0건 |
+
+<br>
+
+## 이번 프로젝트의 MVP
+
+핵심 가치 하나를 끝까지 동작하게 만드는 것이 목표였습니다.
+
+| | 항목 | 이 프로젝트에서 |
+|:--:|:--|:--|
+| **1** | **가치를 한 문장으로** | 정비 신고를 **근거와 함께** 담당 정비팀에 바로 배정한다 |
+| **2** | **그 가치가 끝까지 동작** | 신고 접수 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 화면 |
+| **3** | **숫자로 확인** | 서비스 평가 200건 (dev 80 / test 120): 자동배정 정밀도, LLM2 부서 일치율, 시스템 오류 수 |
+| **4** | **모를 때는 멈춤** | 근거가 없거나 검증에 실패하면 자동 배정하지 않고 사람 검토로. 배정 화면에 인용 근거 표시 |
+| **5** | **나머지는 뒤로** | AWS 실배포(Terraform 정의까지), AI 워커 여러 개로 확장, 앱 메트릭 수집, 인원 현황의 배정 반영 |
 
 <br>
 
@@ -251,29 +252,6 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 ## 시스템 구조
 
 > 여기부터는 개발자를 위한 내용입니다.
-
-```mermaid
-flowchart LR
-    FE["dashboard<br/>Vue 3"] -- "/api" --> BE["backend<br/>Spring Boot"]
-    BE -- "mro.agent.run<br/>+ 실행별 MCP 토큰" --> MQ[("RabbitMQ")]
-    MQ --> AI["LLM 서버<br/>LangGraph"]
-    AI -- "mro.agent.events" --> MQ
-    AI -- "Bearer 토큰" --> BM["business-mcp<br/>기체·수리이력"]
-    AI -- "Bearer 토큰" --> RM["rag-mcp<br/>SDR·AMM·기술자료"]
-    BE --> DB[("PostgreSQL 16<br/>+ pgvector")]
-    BM -- "조회 전용 계정" --> DB
-    RM -- "조회 전용 계정" --> DB
-    AI <--> OAI["OpenAI"]
-```
-
-AWS 배포 구성은 Terraform으로 정의했습니다. 배포는 [infra](https://github.com/mro-agent-proj/infra) 레포에서만 합니다.
-
-<p align="center"><img src="assets/aws-architecture.png" width="860" alt="AWS 아키텍처"></p>
-
-
-<br>
-
-## 구성도
 
 ```mermaid
 flowchart LR
@@ -491,7 +469,9 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 </tr>
 </table>
 
-### 변경에서 배포까지
+<br>
+
+## 배포 구성
 
 ```mermaid
 flowchart LR
@@ -505,6 +485,10 @@ flowchart LR
 - GitHub Actions는 **OIDC**로 AWS에 접근합니다. 장기 액세스 키를 쓰지 않습니다.
 - CloudFront 앞의 **WAF**가 관리형 규칙, SQL 인젝션 차단, 로그인 요청 횟수 제한을 맡습니다.
 
+AWS 구성은 [infra](https://github.com/mro-agent-proj/infra) 레포의 Terraform으로 정의했습니다.
+
+<p align="center"><img src="assets/aws-architecture.png" width="860" alt="AWS 아키텍처"></p>
+
 <br>
 
 ## 리포지토리 구성
@@ -517,7 +501,7 @@ flowchart LR
 | [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
 | [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
 | [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
-| [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 다이어그램 | |
+| [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 설계서·다이어그램 | Markdown · Mermaid |
 
 <br>
 
@@ -593,6 +577,8 @@ flowchart LR
 | **사람 검토** | AI가 확신하지 못한 요청을 관리자가 직접 판단하는 단계 |
 
 </details>
+
+<br>
 
 <br>
 
