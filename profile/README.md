@@ -117,8 +117,31 @@ flowchart LR
 | **QUEUED** | 접수 직후 | 처리 대기 |
 | **CLASSIFYING → INVESTIGATING → REVIEWING** | AI가 단계별로 판단 중 | 3초마다 진행 단계 갱신 |
 | **ASSIGNED** | 근거 검증 통과 | 담당 정비팀 대기 목록에 표시 |
-| **HUMAN_REVIEW** | 근거 부족·판단 충돌·시간 초과 | 관리자 검토 목록에 표시 |
+| **HUMAN_REVIEW** | 근거 부족·판단 충돌·시간 초과·정비팀 거절 | 관리자 검토 목록에 표시 |
 | **ACCEPTED** | 정비팀이 배정 수락 | 처리 이력에 기록 |
+
+<br>
+
+## 유즈케이스
+
+로그인·회원가입처럼 모든 사용자에게 공통인 기능은 빼고, 세 액터의 업무만 담았습니다. 회색 유즈케이스는 신고 접수에 포함되어 시스템이 이어서 처리합니다.
+
+<p align="center"><img src="assets/usecase.svg" width="900" alt="MRO Agent 유즈케이스 다이어그램: 신고자, 정비팀, 관리자"></p>
+
+| 액터 | 유즈케이스 | 화면 | API |
+|:--|:--|:--|:--|
+| **신고자** | 정비 신고 접수 | `/reporter` | `POST /api/v1/requests` |
+| | 접수 정보 보정 | `/reporter` | 422 `NEEDS_SUPPLEMENT` 응답의 등록 값을 한 번에 적용 |
+| | 처리 단계·결과 확인 | `/reporter` | `GET /api/v1/requests`, `GET /api/v1/requests/{id}/trace` |
+| **정비팀** | 배정 요청과 AI 판단 근거 확인 | `/maintenance` | `GET /api/v1/assignments`, `GET /api/v1/requests/{id}/trace` |
+| | 배정 수락 | `/maintenance` | `POST /api/v1/assignments/{id}/accept` |
+| | 배정 거절 (사유 입력) | `/maintenance` | `POST /api/v1/assignments/{id}/reject` → 사람 검토 `TEAM_REJECTED` |
+| **관리자** | 사람 검토 처리 | `/admin` | `GET /api/v1/reviews`, `POST /api/v1/reviews/{id}/resolve` (`ASSIGN` 수동 배정 · `CLOSE` 종결) |
+| | 전체 요청·통계 확인 | `/admin` | `GET /api/v1/requests`, `GET /api/v1/stats/summary` |
+| | RAG 데이터·인원 현황 확인 | `/admin`, `/admin/staffing` | `GET /actuator/health` (ragData), `GET /api/v1/staffing` |
+
+- **AI 담당 부서 판단**과 **자동 배정**은 사람이 직접 실행하지 않습니다. 신고 접수에 포함되어 시스템이 이어서 처리합니다.
+- AI가 근거를 찾지 못하거나 정비팀이 배정을 거절하면, 요청은 관리자의 **사람 검토**로 모입니다.
 
 <br>
 
@@ -384,6 +407,7 @@ sequenceDiagram
 | 재조사 2회로도 충돌이 남음 | LangGraph `limit` → `hold` | 사람 검토 `RETRY_LIMIT` |
 | 인용 근거가 실제 조회 기록과 다름 | `EvidenceValidator.findProblems` | 사람 검토 `VALIDATION_FAILED` |
 | 모델·도구 오류, 5분 초과, 메시지 처리 실패 | `FAILED` 이벤트, `AgentTimeoutJob`, `RunDeadLetterListener` | 사람 검토 `SYSTEM_ERROR` |
+| 정비팀이 배정을 거절 | `AssignmentService.reject` | 사람 검토 `TEAM_REJECTED` |
 
 <br>
 
@@ -577,8 +601,6 @@ AWS 구성은 [infra](https://github.com/mro-agent-proj/infra) 레포의 Terrafo
 | **사람 검토** | AI가 확신하지 못한 요청을 관리자가 직접 판단하는 단계 |
 
 </details>
-
-<br>
 
 <br>
 
