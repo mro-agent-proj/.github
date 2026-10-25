@@ -126,7 +126,7 @@ flowchart LR
 
 로그인·회원가입처럼 모든 사용자에게 공통인 기능은 빼고, 세 액터의 업무만 담았습니다. UML 표기(연관 실선, «include», «extend»)만 쓰고, 업무 순서는 아래 처리 흐름에서 다룹니다.
 
-<p align="center"><img src="assets/usecase.svg" width="900" alt="MRO Agent 유즈케이스 다이어그램: 신고자, 정비팀, 관리자"></p>
+<p align="center"><img src="assets/usecase-uml.svg" width="900" alt="MRO Agent 유즈케이스 다이어그램: 신고자, 정비팀, 관리자"></p>
 
 | 액터 | 유즈케이스 | 화면 | API |
 |:--|:--|:--|:--|
