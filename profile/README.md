@@ -26,21 +26,21 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 <br>
 
-## 📌 30초 요약
+## 30초 요약
 
-> ✈️ **문제** — 정비 신고가 들어오면 사람이 증상을 읽고, 비슷한 과거 사례를 찾고, 담당 정비팀을 정해야 합니다. 신고가 많을수록 **분류와 근거 찾기**에 시간이 걸리고, 담당자마다 판단이 달라집니다.
+> **문제** — 정비 신고가 들어오면 사람이 증상을 읽고, 비슷한 과거 사례를 찾고, 담당 정비팀을 정해야 합니다. 신고가 많을수록 **분류와 근거 찾기**에 시간이 걸리고, 담당자마다 판단이 달라집니다.
 >
-> 🧩 **해결** — AI Agent가 신고를 받아 **같은 기체의 수리이력**을 먼저 비교하고, 부족하면 **SDR(정비 결함 보고) 사례와 기술자료**를 직접 검색해 담당 부서를 추천합니다.
+> **해결** — AI Agent가 신고를 받아 **같은 기체의 수리이력**을 먼저 비교하고, 부족하면 **SDR(정비 결함 보고) 사례와 기술자료**를 직접 검색해 담당 부서를 추천합니다.
 >
-> 🚦 **결과** — 인용한 근거가 실제로 조회된 자료인지 백엔드가 다시 검증합니다. 통과하면 🟢 **자동 배정**, 아니면 🟡 **사람 검토**로 넘어갑니다.
+> **결과** — 인용한 근거가 실제로 조회된 자료인지 백엔드가 다시 검증합니다. 통과하면 **자동 배정**, 아니면 **사람 검토**로 넘어갑니다.
 
 <br>
 
-## 🤔 왜 만들었나요?
+## 왜 만들었나요?
 
 정비가 처음이라면 이렇게 생각해 보세요.
 
-> 🏥 **응급실 접수**를 떠올려 보세요.<br>
+> **응급실 접수**를 떠올려 보세요.<br>
 > 환자가 "가슴이 답답해요"라고 말하면, 접수 간호사는 증상과 과거 진료 기록을 보고 어느 과로 보낼지 정합니다.<br>
 > 잘못 보내면 다른 과로 다시 옮겨야 하고, 그만큼 치료가 늦어집니다.
 
@@ -60,18 +60,18 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 <br>
 
-## 🔄 어떻게 동작하나요?
+## 어떻게 동작하나요?
 
 ```mermaid
 flowchart LR
-    A["👷 신고자<br/>기체번호·증상 접수"] --> B["🗂️ backend<br/>기체·기종 검증"]
-    B --> C["🔍 LLM1<br/>같은 기체 이력 비교"]
+    A["신고자<br/>기체번호·증상 접수"] --> B["backend<br/>기체·기종 검증"]
+    B --> C["LLM1<br/>같은 기체 이력 비교"]
     C -- "근거 확인" --> F
-    C -- "근거 부족" --> D["📚 LLM2<br/>SDR·기술자료 독립 조사"]
-    D --> E["⚖️ LLM3<br/>판단·근거 대조"]
-    E --> F["✅ backend<br/>근거 재검증"]
-    F -- "통과" --> G["🟢 자동 배정"]
-    F -- "불충분" --> H["🟡 사람 검토"]
+    C -- "근거 부족" --> D["LLM2<br/>SDR·기술자료 독립 조사"]
+    D --> E["LLM3<br/>판단·근거 대조"]
+    E --> F["backend<br/>근거 재검증"]
+    F -- "통과" --> G["자동 배정"]
+    F -- "불충분" --> H["사람 검토"]
 ```
 
 1. **신고 접수** — 신고자가 기체번호·기종·증상을 입력합니다. 등록 정보와 다르면 백엔드가 맞는 값을 알려 줍니다.
@@ -81,19 +81,19 @@ flowchart LR
 5. **근거 재검증** — 백엔드가 인용 근거가 실제로 조회된 자료인지, 부서 코드가 맞는지 확인한 뒤 배정하거나 사람 검토로 보냅니다.
 6. **정비팀 확인** — 배정된 정비팀이 수락하거나 거절하고, 관리자가 사람 검토 건을 처리합니다.
 
-### 🚦 요청 상태
+### 요청 상태
 
 | 상태 | 언제? | 화면에서 |
 |:--:|:--|:--|
-| ⏳ **QUEUED** | 접수 직후 | 처리 대기 |
-| 🔍 **CLASSIFYING → INVESTIGATING → REVIEWING** | AI가 단계별로 판단 중 | 3초마다 진행 단계 갱신 |
-| 🟢 **ASSIGNED** | 근거 검증 통과 | 담당 정비팀 대기 목록에 표시 |
-| 🟡 **HUMAN_REVIEW** | 근거 부족·판단 충돌·시간 초과 | 관리자 검토 목록에 표시 |
-| ✅ **ACCEPTED** | 정비팀이 배정 수락 | 처리 이력에 기록 |
+| **QUEUED** | 접수 직후 | 처리 대기 |
+| **CLASSIFYING → INVESTIGATING → REVIEWING** | AI가 단계별로 판단 중 | 3초마다 진행 단계 갱신 |
+| **ASSIGNED** | 근거 검증 통과 | 담당 정비팀 대기 목록에 표시 |
+| **HUMAN_REVIEW** | 근거 부족·판단 충돌·시간 초과 | 관리자 검토 목록에 표시 |
+| **ACCEPTED** | 정비팀이 배정 수락 | 처리 이력에 기록 |
 
 <br>
 
-## 🖥️ 사용자가 마주하는 화면
+## 사용자가 마주하는 화면
 
 ### ① 신고자: 접수와 진행 상황
 기체번호와 증상을 적어 접수하고, 내 요청이 어느 단계에 있는지 실시간으로 봅니다.
@@ -127,31 +127,31 @@ flowchart LR
 
 <br>
 
-## 📊 얼마나 맞히나요?
+## 얼마나 맞히나요?
 
 실제 경로(backend → RabbitMQ → AI(gpt-5.4-mini) → MCP → PostgreSQL)로 **서비스 시나리오 200건**을 실행했습니다. (2026-10-23)
 
 | 지표 | 결과 | 의미 |
 |:--|:--:|:--|
-| ✅ 자동배정 정밀도 | **96/145 (66.2%)** | AI가 자동 배정한 건 중 정답 부서 |
-| 🔎 LLM2 독립 조사 부서 일치 | **71/82 (86.6%)** | 이력 없이 사례 검색만으로 맞힌 비율 |
-| 🎯 전체 평가 통과 | **97/200 (48.5%)** | 기대 상태·허용 부서·금지 이력 조건을 모두 만족 |
-| 🛟 정답 부서를 맞히고도 보류 | **42건** | 확신이 부족해 사람 검토로 넘긴 경우 (성공에 합산하지 않음) |
-| 🧯 시스템 오류 · 시간 초과 | **0건** | 200건 + 접수 검증 6건 전체 |
+| 자동배정 정밀도 | **96/145 (66.2%)** | AI가 자동 배정한 건 중 정답 부서 |
+| LLM2 독립 조사 부서 일치 | **71/82 (86.6%)** | 이력 없이 사례 검색만으로 맞힌 비율 |
+| 전체 평가 통과 | **97/200 (48.5%)** | 기대 상태·허용 부서·금지 이력 조건을 모두 만족 |
+| 정답 부서를 맞히고도 보류 | **42건** | 확신이 부족해 사람 검토로 넘긴 경우 (성공에 합산하지 않음) |
+| 시스템 오류 · 시간 초과 | **0건** | 200건 + 접수 검증 6건 전체 |
 
-> 💭 통과 기준을 엄격하게 잡았습니다. 정답 부서를 맞혀도 금지된 이력을 근거로 썼거나 사람 검토가 필요한 사례를 자동 배정하면 실패로 셉니다. 실제 항공사 운영 성능으로 일반화하지 않습니다.
+> 통과 기준을 엄격하게 잡았습니다. 정답 부서를 맞혀도 금지된 이력을 근거로 썼거나 사람 검토가 필요한 사례를 자동 배정하면 실패로 셉니다. 실제 항공사 운영 성능으로 일반화하지 않습니다.
 
 <br>
 
-## 🏗️ 시스템 구조
+## 시스템 구조
 
-> 💡 여기부터는 개발자를 위한 내용입니다.
+> 여기부터는 개발자를 위한 내용입니다.
 
 ```mermaid
 flowchart LR
-    FE["🖥️ dashboard<br/>Vue 3"] -- "/api" --> BE["🗂️ backend<br/>Spring Boot"]
+    FE["dashboard<br/>Vue 3"] -- "/api" --> BE["backend<br/>Spring Boot"]
     BE -- "mro.agent.run<br/>+ 실행별 MCP 토큰" --> MQ[("RabbitMQ")]
-    MQ --> AI["🧠 LLM 서버<br/>LangGraph"]
+    MQ --> AI["LLM 서버<br/>LangGraph"]
     AI -- "mro.agent.events" --> MQ
     AI -- "Bearer 토큰" --> BM["business-mcp<br/>기체·수리이력"]
     AI -- "Bearer 토큰" --> RM["rag-mcp<br/>SDR·AMM·기술자료"]
@@ -166,7 +166,7 @@ AWS 배포 구성은 Terraform으로 정의했습니다. 배포는 [infra](https
 <p align="center"><img src="assets/aws-architecture.png" width="860" alt="AWS 아키텍처"></p>
 
 <details>
-<summary><b>🗄️ 데이터 구성</b></summary>
+<summary><b> 데이터 구성</b></summary>
 <br>
 
 | 데이터 | 규모 | 용도 |
@@ -183,7 +183,7 @@ AWS 배포 구성은 Terraform으로 정의했습니다. 배포는 [infra](https
 
 <br>
 
-## 🧠 LangGraph: AI 판단 흐름
+## LangGraph: AI 판단 흐름
 
 AI 서버는 LangGraph로 판단 단계를 그래프로 연결합니다. 단계마다 상태(State)를 체크포인트에 저장해, 서버가 재시작돼도 멈춘 단계부터 이어 갑니다.
 
@@ -218,7 +218,7 @@ flowchart TD
 
 <br>
 
-## 📚 MCP 도구
+## MCP 도구
 
 AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니다. 두 서버 모두 **읽기 전용**이며, 요청마다 백엔드가 발급한 토큰과 검색 범위 안에서만 조회합니다.
 
@@ -236,17 +236,17 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 | | R05 | `get_evidence` | 받은 근거의 원문과 인용 위치 재확인 | LLM2, LLM3, 최종 검증 |
 | | 확장 | `get_sdr_amm_references` | 근거 SDR에 인용된 AMM 번호 조회 (참고용 첨부) | 실행기 (배정 확정 후) |
 
-> 💭 서비스 시나리오 200건 실행에서 LLM2는 R01을 77회, R02를 84회 골라 썼고, 최종 검증은 R05를 97회 호출했습니다.
+> 서비스 시나리오 200건 실행에서 LLM2는 R01을 77회, R02를 84회 골라 썼고, 최종 검증은 R05를 97회 호출했습니다.
 
 <br>
 
-## 🔧 기술적으로 신경 쓴 점
+## 기술적으로 신경 쓴 점
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🧠 AI 판단의 신뢰성
+### AI 판단의 신뢰성
 - **판단 분리** — LLM2는 LLM1의 결론·수리이력을 전달받지 않고 원본 신고와 자체 검색 결과만으로 독립 판단합니다. 같은 결론을 베끼는 확증 편향을 막습니다.
 - **근거는 코드가 검증** — 인용한 근거가 실제로 조회됐는지, 발췌가 원문에 있는지, 부서 코드가 유효한지 AI 서버와 백엔드가 두 번 확인합니다.
 - **출력 검증** — 모든 LLM 출력을 pydantic으로 검증하고, 실패하면 오류를 알려 주고 한 번 더 받습니다.
@@ -255,7 +255,7 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 </td>
 <td width="50%" valign="top">
 
-### 🔐 보안 · 운영
+### 보안 · 운영
 - **읽기 전용 MCP** — MCP 서버는 SELECT 전용 DB 계정으로만 접속하고, 쓰기 권한이 있으면 기동을 거부합니다.
 - **실행별 위임 토큰** — 백엔드가 요청마다 검색 범위를 등록하고 수명이 짧은 MCP 토큰 2개를 발급합니다.
 - **복구 가능한 실행** — RabbitMQ DLQ, 5분 처리 한도(넘으면 사람 검토), 단계별 체크포인트로 재시작해도 이어서 처리합니다.
@@ -265,7 +265,7 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 </tr>
 </table>
 
-### 🚀 변경에서 배포까지
+### 변경에서 배포까지
 
 ```mermaid
 flowchart LR
@@ -281,21 +281,21 @@ flowchart LR
 
 <br>
 
-## 📦 리포지토리 구성
+## 리포지토리 구성
 
 | 리포지토리 | 한 줄 설명 | 주요 기술 |
 |:--|:--|:--|
-| 🖥️ [**dashboard**](https://github.com/mro-agent-proj/dashboard) | 신고자·정비팀·관리자 화면 | Vue 3 · TypeScript · PrimeVue 4 |
-| 🗂️ [**backend**](https://github.com/mro-agent-proj/backend) | 계정·요청·배정 API, DB·데이터 적재, MCP 토큰 발급 | Java 21 · Spring Boot · Flyway |
-| 🧠 [**LLM**](https://github.com/mro-agent-proj/LLM) | LLM1 분류 → LLM2 조사 → LLM3 검토 AI 서버 | Python · FastAPI · LangGraph · LangChain |
-| 📚 [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
-| 🔗 [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
-| ☁️ [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
-| 📄 [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 다이어그램 | |
+| [**dashboard**](https://github.com/mro-agent-proj/dashboard) | 신고자·정비팀·관리자 화면 | Vue 3 · TypeScript · PrimeVue 4 |
+| [**backend**](https://github.com/mro-agent-proj/backend) | 계정·요청·배정 API, DB·데이터 적재, MCP 토큰 발급 | Java 21 · Spring Boot · Flyway |
+| [**LLM**](https://github.com/mro-agent-proj/LLM) | LLM1 분류 → LLM2 조사 → LLM3 검토 AI 서버 | Python · FastAPI · LangGraph · LangChain |
+| [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
+| [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
+| [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
+| [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 다이어그램 | |
 
 <br>
 
-## 🛠️ 기술 스택
+## 기술 스택
 
 <div align="center">
 
@@ -332,7 +332,7 @@ flowchart LR
 
 <br>
 
-## 👥 팀
+## 팀
 
 <table>
 <tr>
@@ -347,7 +347,7 @@ flowchart LR
 
 <br>
 
-## 📖 용어 사전
+## 용어 사전
 
 <details>
 <summary>항공 정비가 처음이라면 펼쳐 보세요</summary>
@@ -372,7 +372,7 @@ flowchart LR
 
 <div align="center">
 
-**AI가 찾고, 근거가 증명하고, 사람이 결정합니다.** ✈️
+**AI가 찾고, 근거가 증명하고, 사람이 결정합니다.**
 
 <sub>© 2026 MRO Agent</sub>
 
