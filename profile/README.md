@@ -124,7 +124,7 @@ flowchart LR
 
 ## 유즈케이스
 
-로그인·회원가입처럼 모든 사용자에게 공통인 기능은 빼고, 세 액터의 업무만 담았습니다. 회색 유즈케이스는 신고 접수에 포함되어 시스템이 이어서 처리합니다.
+로그인·회원가입처럼 모든 사용자에게 공통인 기능은 빼고, 세 액터의 업무만 담았습니다. UML 표기(연관 실선, «include», «extend»)만 쓰고, 업무 순서는 아래 처리 흐름에서 다룹니다.
 
 <p align="center"><img src="assets/usecase.svg" width="900" alt="MRO Agent 유즈케이스 다이어그램: 신고자, 정비팀, 관리자"></p>
 
@@ -133,15 +133,17 @@ flowchart LR
 | **신고자** | 정비 신고 접수 | `/reporter` | `POST /api/v1/requests` |
 | | 접수 정보 보정 | `/reporter` | 422 `NEEDS_SUPPLEMENT` 응답의 등록 값을 한 번에 적용 |
 | | 처리 단계·결과 확인 | `/reporter` | `GET /api/v1/requests`, `GET /api/v1/requests/{id}/trace` |
-| **정비팀** | 배정 요청과 AI 판단 근거 확인 | `/maintenance` | `GET /api/v1/assignments`, `GET /api/v1/requests/{id}/trace` |
+| **정비팀** | 배정 요청·AI 판단 근거 확인 | `/maintenance` | `GET /api/v1/assignments`, `GET /api/v1/requests/{id}/trace` |
 | | 배정 수락 | `/maintenance` | `POST /api/v1/assignments/{id}/accept` |
 | | 배정 거절 (사유 입력) | `/maintenance` | `POST /api/v1/assignments/{id}/reject` → 사람 검토 `TEAM_REJECTED` |
 | **관리자** | 사람 검토 처리 | `/admin` | `GET /api/v1/reviews`, `POST /api/v1/reviews/{id}/resolve` (`ASSIGN` 수동 배정 · `CLOSE` 종결) |
-| | 전체 요청·통계 확인 | `/admin` | `GET /api/v1/requests`, `GET /api/v1/stats/summary` |
-| | RAG 데이터·인원 현황 확인 | `/admin`, `/admin/staffing` | `GET /actuator/health` (ragData), `GET /api/v1/staffing` |
+| | 전체 요청 조회 | `/admin` | `GET /api/v1/requests` |
+| | 처리 통계 확인 | `/admin` | `GET /api/v1/stats/summary` (자동 배정률 등) |
+| | RAG 데이터 상태 확인 | `/admin` | `GET /actuator/health` (ragData) |
+| | 인원 현황 확인 | `/admin/staffing` | `GET /api/v1/staffing` |
 
-- **AI 담당 부서 판단**과 **자동 배정**은 사람이 직접 실행하지 않습니다. 신고 접수에 포함되어 시스템이 이어서 처리합니다.
-- AI가 근거를 찾지 못하거나 정비팀이 배정을 거절하면, 요청은 관리자의 **사람 검토**로 모입니다.
+- **AI 담당 부서 판단**은 신고 접수에 항상 포함되고(«include»), **자동 배정**은 근거 검증을 통과했을 때만 일어납니다(«extend»). 둘 다 사람이 아니라 시스템이 수행합니다.
+- AI가 근거를 찾지 못하거나 정비팀이 배정을 거절하면, 요청은 관리자의 **사람 검토 처리** 목록으로 모입니다(처리 흐름: 실패 참고).
 
 <br>
 
