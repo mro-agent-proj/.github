@@ -423,7 +423,7 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 </details>
 
 <details>
-<summary><strong>판단 검증·보안·배포 구성</strong></summary>
+<summary><strong>AI 판단 검증과 보안</strong></summary>
 
 ## 기술적으로 신경 쓴 점
 
@@ -452,17 +452,24 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 
 <br>
 
-## 배포 구성
+</details>
+
+<details>
+<summary><strong>AWS 아키텍처와 배포 구성</strong></summary>
+
+## AWS 아키텍처
+
+[infra](https://github.com/mro-agent-proj/infra) 레포의 Terraform으로 정의한 운영 구성입니다. CloudFront(WAF) → ALB → ECS Fargate 서비스(backend · ai · MCP 2개) → Amazon MQ · RDS PostgreSQL 순서로 요청이 흐릅니다.
+
+<p align="center"><img src="assets/aws-architecture.png" width="1000" alt="AWS 아키텍처: CloudFront·WAF, ALB, ECS Fargate, Amazon MQ, RDS PostgreSQL"></p>
+
+## 배포 흐름
 
 <p align="center"><img src="assets/diagram-deployment-v2.png" width="1000" alt="배포 흐름: 서비스 PR, CI·병합, integration 통합 검증, verified 태그, 승인 후 terraform apply"></p>
 
 - 코드는 **서비스 레포에서만** 바꿉니다. integration은 봇이 자동으로 갱신하고, 운영 배포는 **infra에서만** 합니다.
 - GitHub Actions는 **OIDC**로 AWS에 접근합니다. 장기 액세스 키를 쓰지 않습니다.
 - CloudFront 앞의 **WAF**가 관리형 규칙, SQL 인젝션 차단, 로그인 요청 횟수 제한을 맡습니다.
-
-AWS 구성은 [infra](https://github.com/mro-agent-proj/infra) 레포의 Terraform으로 정의했습니다.
-
-<p align="center"><img src="assets/aws-architecture.png" width="860" alt="AWS 아키텍처"></p>
 
 <br>
 
