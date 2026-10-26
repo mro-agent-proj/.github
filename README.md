@@ -20,10 +20,6 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 [![보고서](https://img.shields.io/badge/최종-결과보고서-4B5563?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/final-report)
 [![설계서](https://img.shields.io/badge/아키텍처-설계서-2563EB?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/design)
 
-<br>
-
-<img src="profile/assets/maintenance-queue.png" width="760" alt="정비팀 배정 화면">
-
 </div>
 
 <br>
@@ -291,6 +287,57 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 <br>
 
 </details>
+
+## 리포지토리 구성
+
+| 리포지토리 | 한 줄 설명 | 주요 기술 |
+|:--|:--|:--|
+| [**dashboard**](https://github.com/mro-agent-proj/dashboard) | 신고자·정비팀·관리자 화면 | Vue 3 · TypeScript · PrimeVue 4 |
+| [**backend**](https://github.com/mro-agent-proj/backend) | 계정·요청·배정 API, DB·데이터 적재, MCP 토큰 발급 | Java 21 · Spring Boot · Flyway |
+| [**LLM**](https://github.com/mro-agent-proj/LLM) | LLM1 분류 → LLM2 조사 → LLM3 검토 AI 서버 | Python · FastAPI · LangGraph · LangChain |
+| [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
+| [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
+| [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
+| [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 설계서·다이어그램 | Markdown · Mermaid |
+
+<br>
+
+## 기술 스택
+
+<div align="center">
+
+**Backend**<br>
+![Java](https://img.shields.io/badge/Java_21-007396?style=flat-square&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=flat-square&logo=rabbitmq&logoColor=white)
+![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat-square&logo=flyway&logoColor=white)
+
+**AI & RAG**<br>
+![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)
+![pgvector](https://img.shields.io/badge/pgvector-336791?style=flat-square&logo=postgresql&logoColor=white)
+![MCP](https://img.shields.io/badge/MCP-000000?style=flat-square)
+
+**Frontend**<br>
+![Vue.js](https://img.shields.io/badge/Vue_3-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![PrimeVue](https://img.shields.io/badge/PrimeVue_4-41B883?style=flat-square)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+
+**Infra & DevOps**<br>
+![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
+![Amazon ECS](https://img.shields.io/badge/ECS_Fargate-FF9900?style=flat-square&logo=amazonecs&logoColor=white)
+![Amazon RDS](https://img.shields.io/badge/RDS-527FFF?style=flat-square&logo=amazonrds&logoColor=white)
+![CloudFront](https://img.shields.io/badge/CloudFront_·_WAF-8C4FFF?style=flat-square&logo=amazonaws&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+
+</div>
+
+<br>
 
 ## 기술 문서
 
@@ -560,72 +607,6 @@ AWS 구성은 [infra](https://github.com/mro-agent-proj/infra) 레포의 Terrafo
 
 </details>
 
-## 리포지토리 구성
-
-| 리포지토리 | 한 줄 설명 | 주요 기술 |
-|:--|:--|:--|
-| [**dashboard**](https://github.com/mro-agent-proj/dashboard) | 신고자·정비팀·관리자 화면 | Vue 3 · TypeScript · PrimeVue 4 |
-| [**backend**](https://github.com/mro-agent-proj/backend) | 계정·요청·배정 API, DB·데이터 적재, MCP 토큰 발급 | Java 21 · Spring Boot · Flyway |
-| [**LLM**](https://github.com/mro-agent-proj/LLM) | LLM1 분류 → LLM2 조사 → LLM3 검토 AI 서버 | Python · FastAPI · LangGraph · LangChain |
-| [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
-| [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
-| [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
-| [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 설계서·다이어그램 | Markdown · Mermaid |
-
-<br>
-
-## 기술 스택
-
-<div align="center">
-
-**Backend**<br>
-![Java](https://img.shields.io/badge/Java_21-007396?style=flat-square&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL_16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=flat-square&logo=rabbitmq&logoColor=white)
-![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat-square&logo=flyway&logoColor=white)
-
-**AI & RAG**<br>
-![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![LangGraph](https://img.shields.io/badge/LangGraph-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)
-![pgvector](https://img.shields.io/badge/pgvector-336791?style=flat-square&logo=postgresql&logoColor=white)
-![MCP](https://img.shields.io/badge/MCP-000000?style=flat-square)
-
-**Frontend**<br>
-![Vue.js](https://img.shields.io/badge/Vue_3-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![PrimeVue](https://img.shields.io/badge/PrimeVue_4-41B883?style=flat-square)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
-
-**Infra & DevOps**<br>
-![Terraform](https://img.shields.io/badge/Terraform-844FBA?style=flat-square&logo=terraform&logoColor=white)
-![Amazon ECS](https://img.shields.io/badge/ECS_Fargate-FF9900?style=flat-square&logo=amazonecs&logoColor=white)
-![Amazon RDS](https://img.shields.io/badge/RDS-527FFF?style=flat-square&logo=amazonrds&logoColor=white)
-![CloudFront](https://img.shields.io/badge/CloudFront_·_WAF-8C4FFF?style=flat-square&logo=amazonaws&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
-
-</div>
-
-<br>
-
-## 팀
-
-<table>
-<tr>
-<td align="center" width="16%"><a href="https://github.com/younghoyk"><img src="https://github.com/younghoyk.png" width="64" alt="younghoyk"><br><sub>@younghoyk</sub></a></td>
-<td align="center" width="16%"><a href="https://github.com/Iod-oxy"><img src="https://github.com/Iod-oxy.png" width="64" alt="Iod-oxy"><br><sub>@Iod-oxy</sub></a></td>
-<td align="center" width="16%"><a href="https://github.com/kkwakna"><img src="https://github.com/kkwakna.png" width="64" alt="kkwakna"><br><sub>@kkwakna</sub></a></td>
-<td align="center" width="16%"><a href="https://github.com/ybkeem"><img src="https://github.com/ybkeem.png" width="64" alt="ybkeem"><br><sub>@ybkeem</sub></a></td>
-<td align="center" width="16%"><a href="https://github.com/goldmirr"><img src="https://github.com/goldmirr.png" width="64" alt="goldmirr"><br><sub>@goldmirr</sub></a></td>
-<td align="center" width="16%"><a href="https://github.com/Weeny326"><img src="https://github.com/Weeny326.png" width="64" alt="Weeny326"><br><sub>@Weeny326</sub></a></td>
-</tr>
-</table>
-
-<br>
-
 ## 용어 사전
 
 <details>
@@ -646,6 +627,21 @@ AWS 구성은 [infra](https://github.com/mro-agent-proj/infra) 레포의 Terrafo
 | **사람 검토** | AI가 확신하지 못한 요청을 관리자가 직접 판단하는 단계 |
 
 </details>
+
+<br>
+
+## 팀
+
+<table>
+<tr>
+<td align="center" width="16%"><a href="https://github.com/younghoyk"><img src="https://github.com/younghoyk.png" width="64" alt="younghoyk"><br><sub>@younghoyk</sub></a></td>
+<td align="center" width="16%"><a href="https://github.com/Iod-oxy"><img src="https://github.com/Iod-oxy.png" width="64" alt="Iod-oxy"><br><sub>@Iod-oxy</sub></a></td>
+<td align="center" width="16%"><a href="https://github.com/kkwakna"><img src="https://github.com/kkwakna.png" width="64" alt="kkwakna"><br><sub>@kkwakna</sub></a></td>
+<td align="center" width="16%"><a href="https://github.com/ybkeem"><img src="https://github.com/ybkeem.png" width="64" alt="ybkeem"><br><sub>@ybkeem</sub></a></td>
+<td align="center" width="16%"><a href="https://github.com/goldmirr"><img src="https://github.com/goldmirr.png" width="64" alt="goldmirr"><br><sub>@goldmirr</sub></a></td>
+<td align="center" width="16%"><a href="https://github.com/Weeny326"><img src="https://github.com/Weeny326.png" width="64" alt="Weeny326"><br><sub>@Weeny326</sub></a></td>
+</tr>
+</table>
 
 <br>
 
