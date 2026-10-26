@@ -15,8 +15,8 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 근거가 검증될 때만 자동으로 배정합니다. 확신이 없으면 사람에게 넘깁니다.
 
 [![통합 레포](https://img.shields.io/badge/시작하기-integration-181717?style=for-the-badge&logo=github)](https://github.com/mro-agent-proj/integration)
-[![아키텍처](https://img.shields.io/badge/AWS-아키텍처-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)](https://github.com/mro-agent-proj/deliverables/tree/main/architecture)
-[![보고서](https://img.shields.io/badge/최종-결과보고서-4B5563?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/final-report)
+[![아키텍처](https://img.shields.io/badge/AWS-아키텍처-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)](https://github.com/mro-agent-proj/deliverables/tree/main/design#aws-배포-구성)
+[![보고서](https://img.shields.io/badge/최종-결과보고서-4B5563?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/report)
 [![설계서](https://img.shields.io/badge/아키텍처-설계서-2563EB?style=for-the-badge)](https://github.com/mro-agent-proj/deliverables/tree/main/design)
 
 </div>
