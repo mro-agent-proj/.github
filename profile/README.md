@@ -84,7 +84,7 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 | **2** | **그 가치가 끝까지 동작** | 신고 접수 → AI 분류·조사·검토 → 근거 재검증 → 정비팀 배정 화면 |
 | **3** | **숫자로 확인** | 서비스 평가 200건 (dev 80 / test 120): 자동배정 정밀도, LLM2 부서 일치율, 시스템 오류 수 |
 | **4** | **모를 때는 멈춤** | 근거가 없거나 검증에 실패하면 자동 배정하지 않고 사람 검토로. 배정 화면에 인용 근거 표시 |
-| **5** | **나머지는 뒤로** | AWS 실배포(Terraform 정의까지), AI 워커 여러 개로 확장, 앱 메트릭 수집, 인원 현황의 배정 반영 |
+| **5** | **나머지는 뒤로** | AWS 실배포(Terraform 정의까지), AI 워커 여러 개로 확장, 인원 현황의 배정 반영 |
 
 <br>
 
@@ -295,7 +295,7 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 | [**backend**](https://github.com/mro-agent-proj/backend) | 계정·요청·배정 API, DB·데이터 적재, MCP 토큰 발급 | Java 21 · Spring Boot · Flyway |
 | [**LLM**](https://github.com/mro-agent-proj/LLM) | LLM1 분류 → LLM2 조사 → LLM3 검토 AI 서버 | Python · FastAPI · LangGraph · LangChain |
 | [**agent**](https://github.com/mro-agent-proj/agent) | 업무 조회·근거 검색 MCP 서버 2개 (도구 9개) | Python · MCP · pgvector |
-| [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트 | Docker Compose · GitHub Actions |
+| [**integration**](https://github.com/mro-agent-proj/integration) | 서비스 4개의 검증된 커밋 조합, 실행·평가 스크립트, 모니터링 | Docker Compose · GitHub Actions · Prometheus · Grafana |
 | [**infra**](https://github.com/mro-agent-proj/infra) | AWS 인프라와 운영 배포 | Terraform · ECS Fargate · WAF |
 | [**deliverables**](https://github.com/mro-agent-proj/deliverables) | 최종 결과보고서, 아키텍처 설계서·다이어그램 | Markdown · Mermaid |
 
@@ -333,6 +333,8 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 ![CloudFront](https://img.shields.io/badge/CloudFront_·_WAF-8C4FFF?style=flat-square&logo=amazonaws&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
 
 </div>
 
