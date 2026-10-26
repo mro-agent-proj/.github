@@ -22,7 +22,7 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 <br>
 
-<img src="profile/assets/main.png" width="760" alt="정비팀 배정 화면">
+<img src="profile/assets/maintenance-queue.png" width="760" alt="정비팀 배정 화면">
 
 </div>
 
@@ -150,6 +150,8 @@ flowchart LR
 
 ## 사용자가 마주하는 화면
 
+<sub>2026-10-26 로컬 실행 화면입니다. 기존 시연·평가 데이터를 조회했으며, 접수 작성과 수동 배정 화면은 제출 전 상태입니다.</sub>
+
 ### ① 신고자: 접수와 진행 상황
 기체번호와 증상을 적어 접수하고, 내 요청이 어느 단계에 있는지 실시간으로 봅니다.
 
@@ -166,7 +168,7 @@ flowchart LR
 <table>
 <tr>
 <td width="50%"><img src="profile/assets/maintenance-queue.png" alt="정비팀 배정 대기 목록"></td>
-<td width="50%"><img src="profile/assets/maintenance-evidence.png" alt="AI 판단 근거와 SDR 사례"></td>
+<td width="50%"><img src="profile/assets/maintenance-evidence.png" alt="SDR 판단 근거와 별도 AMM 참고자료"></td>
 </tr>
 </table>
 
