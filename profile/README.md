@@ -341,7 +341,7 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 
 > 여기부터는 개발자를 위한 내용입니다.
 
-<p align="center"><img src="assets/diagram-system-architecture.png" width="1000" alt="구성도: dashboard, backend, RabbitMQ, AI 서버, MCP 서버, PostgreSQL"></p>
+<p align="center"><img src="assets/diagram-system-architecture-v2.png" width="1000" alt="구성도: dashboard, backend, RabbitMQ, AI 서버, MCP 서버, PostgreSQL"></p>
 
 > **Harness** — MCP 도구 10초·재시도 1회 · 모델 호출 45초 · 단계별 도구 호출 8회 · 재조사 최대 2회 · AI 실행 280초 · 백엔드 처리 한도 5분 · 실행별 MCP 토큰 10분 · LLM 출력 스키마 검증 실패 시 1회 재요청
 
@@ -382,7 +382,7 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 
 AI 서버는 LangGraph로 판단 단계를 그래프로 연결합니다. 단계마다 상태(State)를 체크포인트에 저장해, 서버가 재시작돼도 멈춘 단계부터 이어 갑니다.
 
-<p align="center"><img src="assets/diagram-langgraph-flow.png" width="600" alt="LangGraph AI 판단 순서도: classify, investigate, review, finalize, hold"></p>
+<p align="center"><img src="assets/diagram-langgraph-flowchart-v2.png" width="600" alt="LangGraph AI 판단 순서도: classify, investigate, review, finalize, hold"></p>
 
 | 노드 | 하는 일 |
 |:--|:--|
