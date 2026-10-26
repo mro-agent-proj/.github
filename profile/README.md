@@ -382,7 +382,7 @@ AI가 근거로 찾는 **검색 데이터**와, 시연·평가에 쓰는 **업�
 
 AI 서버는 LangGraph로 판단 단계를 그래프로 연결합니다. 단계마다 상태(State)를 체크포인트에 저장해, 서버가 재시작돼도 멈춘 단계부터 이어 갑니다.
 
-<p align="center"><img src="assets/diagram-langgraph-flow.png" width="600" alt="LangGraph 노드 흐름: classify, investigate, review, finalize"></p>
+<p align="center"><img src="assets/diagram-langgraph-flow.png" width="600" alt="LangGraph AI 판단 순서도: classify, investigate, review, finalize, hold"></p>
 
 | 노드 | 하는 일 |
 |:--|:--|
