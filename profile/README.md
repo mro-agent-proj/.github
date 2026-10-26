@@ -92,7 +92,7 @@ MRO Agent는 같은 기체의 수리이력과 **FAA 정비 결함 사례 71,741�
 
 ## 어떻게 동작하나요?
 
-<p align="center"><img src="assets/diagram-how-it-works.png" width="900" alt="동작 흐름: 접수, 기체 검증, LLM1 이력 비교, LLM2 독립 조사, LLM3 대조, 근거 재검증, 자동 배정 또는 사람 검토"></p>
+<p align="center"><img src="assets/diagram-how-it-works-v2.png" width="1000" alt="동작 흐름: 접수, 기체 검증, LLM1 이력 비교, LLM2 독립 조사, LLM3 대조, 근거 재검증, 자동 배정 또는 사람 검토"></p>
 
 1. **신고 접수** — 신고자가 기체번호·기종·증상을 입력합니다. 등록 정보와 다르면 백엔드가 맞는 값을 알려 줍니다.
 2. **이력 비교 (LLM1)** — 증상만 보고 계통(ATA) 후보를 고른 뒤, 같은 기체의 해당 계통 수리이력과 비교합니다. 근거가 확실하면 바로 배정을 제안합니다.
@@ -454,7 +454,7 @@ AI는 MCP(Model Context Protocol)로 두 서버의 도구 9개를 호출합니�
 
 ## 배포 구성
 
-<p align="center"><img src="assets/diagram-deployment.png" width="900" alt="배포 흐름: 서비스 PR, Release, integration 검증, infra release PR, terraform apply"></p>
+<p align="center"><img src="assets/diagram-deployment-v2.png" width="1000" alt="배포 흐름: 서비스 PR, CI·병합, integration 통합 검증, verified 태그, 승인 후 terraform apply"></p>
 
 - 코드는 **서비스 레포에서만** 바꿉니다. integration은 봇이 자동으로 갱신하고, 운영 배포는 **infra에서만** 합니다.
 - GitHub Actions는 **OIDC**로 AWS에 접근합니다. 장기 액세스 키를 쓰지 않습니다.
